@@ -54,6 +54,23 @@ except ImportError:
                 "http://code.google.com/p/pygeoip/)."
         )
 
+def create_short_alias():
+    """
+    Try to create a short URL alias (between 3 and 4 chars).
+
+    While the generated random alias is used, generate a new one. Has a few
+    chances to loop infinitely (if all the aliases are already in use), but
+    it is an edge case which should not happen anyway.
+    """
+    alias = None
+    while alias is None:
+        to_try = makePassword(3, 4)
+        try:
+            Url.objects.get(url_min=to_try)
+        except Url.DoesNotExist:
+            alias = to_try
+    return alias
+
 def homepage(request):
     get_urls = request.GET.get('url_src', '')
     type_request = 'POST'
@@ -80,15 +97,7 @@ def homepage(request):
             
             # Try to get an alias...
             if not form.cleaned_data['url_min']:
-                alias_url = makePassword(3,4)
-                try:
-                    link = Url.objects.get(url_min=alias_url)
-                    rand_numb = random.randint(0,9)
-                    new_alias = '%s%s' % (makePassword(3,4), rand_numb)
-                except Url.DoesNotExist:
-                    new_alias = alias_url
-                    
-                new_url.url_min = alias_url
+                new_url.url_min = create_short_alias()
                 
             # Géolocalisation des urls
             gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
@@ -698,15 +707,7 @@ def justAPIv1(request, function, format_output='text'):
                 
                 # Try to get an alias...
                 if not form.cleaned_data['url_min']:
-                    alias_url = makePassword(3,4)
-                    try:
-                        link = Url.objects.get(url_min=alias_url)
-                        rand_numb = random.randint(0,9)
-                        new_alias = '%s%s' % (makePassword(3,4), rand_numb)
-                    except Url.DoesNotExist:
-                        new_alias = alias_url
-                        
-                    new_url.url_min = alias_url
+                    new_url.url_min = create_short_alias()
                     
                 # Géolocalisation des urls
                 gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
