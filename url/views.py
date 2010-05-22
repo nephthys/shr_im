@@ -71,6 +71,27 @@ def create_short_alias():
             alias = to_try
     return alias
 
+def add_link_to_country(country_name):
+    """
+    Add a link to the country links count.
+
+    This method basically queries the DB for the Country object identified
+    by the country_name parameter and add one to its nb_links field. It then
+    returns the Country object it got from the DB.
+
+    If the country does not exist in the DB, create it with a link count of
+    1.
+    """
+    try:
+        country = Country.objects.get(name=country_data)
+    except Country.DoesNotExist:
+        country = Country(name=country_data, int=country_data)
+        country.save()
+
+    country.nb_links += 1
+    country.save()
+    return country
+
 def homepage(request):
     get_urls = request.GET.get('url_src', '')
     type_request = 'POST'
@@ -104,13 +125,7 @@ def homepage(request):
             country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
         
             if country_data:
-                try:
-                    my_country = Country.objects.get(name=country_data)
-                except Country.DoesNotExist:
-                    my_country = Country(name=country_data, int=country_data)
-                    my_country.save()
-                my_country.nb_links += 1
-                my_country.save()
+                new_url = add_link_to_country(country_data)
                 new_url.country = my_country
                 
             if not request.user.is_anonymous():
@@ -714,13 +729,7 @@ def justAPIv1(request, function, format_output='text'):
                 country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
             
                 if country_data:
-                    try:
-                        my_country = Country.objects.get(name=country_data)
-                    except Country.DoesNotExist:
-                        my_country = Country(name=country_data, int=country_data)
-                        my_country.save()
-                    my_country.nb_links += 1
-                    my_country.save()
+                    new_url = add_link_to_country(country_data)
                     new_url.country = my_country
                     
                 new_url.auteur = access_api.auteur  
