@@ -96,12 +96,12 @@ def homepage(request):
         form = UrlForm()
 
     show_page = False
+    separateur = '...'
     if request.user.is_authenticated():
         NB_LINKS = 5
         list_urls = Url.objects.filter(auteur=request.user).order_by('-pub_date')
         nb_links = list_urls.count()
         list_page, page, list_urls = get_list_page(request, list_urls, NB_LINKS)
-        separateur = '...'
         if nb_links > NB_LINKS:
             show_page = True
 
