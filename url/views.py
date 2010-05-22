@@ -34,8 +34,22 @@ from urlparse import urlparse
 from collections import defaultdict
 import string, random
 import urllib2
-import pygeoip
 import re
+
+# Use GeoIP (C/Python implementation) if available, then fallback to
+# pygeoip (pure Python implementation)
+try:
+    import GeoIP as geoip
+except ImportError:
+    try:
+        import pygeoip as geoip
+    except ImportError:
+        # Neither GeoIP/pygeoip installed, display a clean error
+        raise ImportError(
+                "Unable to find a Python GeoIP module. Please install GeoIP ("
+                "http://www.maxmind.com/app/python) or pygeoip ("
+                "http://code.google.com/p/pygeoip/)."
+        )
 
 def homepage(request):
     get_urls = request.GET.get('url_src', '')
