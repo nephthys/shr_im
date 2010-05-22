@@ -109,6 +109,7 @@ def homepage(request):
     else:
         form = UrlForm()
 
+    ctx = {}
     show_page = False
     separateur = '...'
     if request.user.is_authenticated():
@@ -119,16 +120,21 @@ def homepage(request):
         if nb_links > NB_LINKS:
             show_page = True
 
+        # Copy the defined variables into the template context
+        ctx.update(list_urls=list_urls,
+                   nb_links=nb_links,
+                   list_page=list_page,
+                   page=page)
+
     num_msg = int(request.GET.get('msg', 0))
-    return render_to_response('post_old.html', {'request': request, 
-                                                'form': form,
-                                                'list_urls': list_urls,
-                                                'num_msg': num_msg, 
-                                                'separateur': separateur, 
-                                                'list_page': list_page, 
-                                                'page': page, 
-                                                'show_page': show_page,
-                                                'nb_links': nb_links, })
+
+    # Define the common variables in the context
+    ctx.update(request=request,
+               form=form,
+               num_msg=num_msg,
+               separateur=separateur,
+               show_page=show_page)
+    return render_to_response('post_old.html', ctx)
     
 def redir(request, alias):
     """
