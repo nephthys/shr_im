@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 from oauth import oauth
-import re, httplib, simplejson
+import re, httplib
+from django.utils import simplejson
 from utils import *
 
 class Account(models.Model):
