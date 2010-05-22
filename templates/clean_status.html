@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}URL's Title and Description cleaner{% endblock %}
+{% block content %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1>URL's Title and Description cleaner</h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+    <h2>Cleaner log</h2>
+
+    <ul>
+      {% for item in urls %}
+      <li><a href="{{ item.url.get_absolute_redir }}">{{ item.url.title }}</a> - {% if item.fixed %}<span style="color: green;">[DONE]</span>{% else %}<span style="color: red;">[FAILED]</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+
+</div>
+
+{% endblock %}

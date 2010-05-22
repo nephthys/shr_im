@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}{{ url.url_min }} &bull; Statistics in real time{% endblock %}
+{% block content %}
+
+{% load appname_tags %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1 title="{{ url.title }}">{% if url.is_private %}<img src="/site_media/img/lock.png" alt="Private URL" /> {% endif %}<span id="title_h1_edit_link_{{ url.id }}">{{ url.title|truncchar:75 }}</span></h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+
+<div class="author_links">
+
+{% if request.user.is_authenticated %}
+{% if request.user.get_profile.can_tweet %}
+<div class="float_right"><a href="#" class="link_post{% if show_post %} link_post_selected{% endif %}"><img src="/site_media/img/button_post.jpg" alt="" /> Post on Twitter</a></div>
+{% endif %}
+{% endif %}
+
+{{ url.pub_date|date_diff }} by {% if url.auteur %}
+<a href="{{ url.auteur.get_profile.get_absolute_url }}">{% if url.auteur.get_profile.avatar_url %}<img src="{{ url.auteur.get_profile.avatar_url }}" alt="" style="width: 22px;" class="style_avatar border_fiche" />&nbsp;{% endif %}{{ url.auteur.username }}</a>
+{% else %}
+    Guest
+{% endif %}
+</div>
+
+{% if num_msg %}
+    {% ifequal num_msg 20 %}<div id="msg" class="success">Your tweet has been posted on Twitter!</div>{% endifequal %}
+    {% ifequal num_msg 21 %}<div id="msg" class="error">Oops, fatal error!</div>{% endifequal %}
+    {% ifequal num_msg 22 %}<div id="msg" class="error">Your tweet contains more than 140 characters.</div>{% endifequal %}
+    {% ifequal num_msg 31 %}<div id="msg" class="error">You don't have the right to delete this URL.</div>{% endifequal %}
+{% endif %}
+
+{% if request.user.is_authenticated %}
+{% if request.user.get_profile.can_tweet %}
+<form action="{{ url.get_absolute_url }}" method="post" id="post_tweet"{% if not show_post %} style="display: none;"{% endif %}>
+    <p><label for="msg_updatetweet">Your tweet :</label><br /><textarea name="msg_updatetweet" id="msg_updatetweet" class="input_content" rows="2" cols="70" style="vertical-align: top;">{{ msg_tweet }}</textarea>
+    <input type="submit" name="submit" id="submit_butt" value="Post!" /></p>
+</form>
+{% endif %}
+{% endif %}
+
+<div id="source_url" class="row_arrondi">
+<div class="row_arrondi2">
+{% with shared_sameurl.count as total_shared %}
+<div class="left_col legend"><strong>Short URL :</strong></div>
+<div class="right_col">{% if created_now %}<input name="new_url_id" type="text" class="input_content" id="selectedField" value="{{ url_redir }}" />{% else %}<a href="{{ url.get_absolute_redir }}">{{ url_redir }}</a>{% endif %}</div>
+<hr class="clearehr sep_longurl" />
+<div class="left_col legend"><strong>Long URL :</strong></div>
+<div class="right_col">
+    <div id="url_edit_link_{{ url.id }}">
+        <a href="{{ url.get_absolute_redir }}" id="src_edit_link_{{ url.id }}" class="legend">{{ url.url_src }}</a> 
+        {% if request.user.is_authenticated %}{% ifequal request.user url.auteur %}
+        &nbsp; <a href="#" class="show_form_edit_link" id="edit_link_{{ url.id }}" title="edit this link">edit</a> &nbsp;
+        <a href="/del/{{url.url_min }}/" onclick="return confirm('Are you sure you want to delete?');"  title="delete this link">delete</a>
+        {% endifequal %}{% endif %}
+    </div>
+    {% if request.user.is_authenticated %}{% ifequal request.user url.auteur %}
+    <div class="edit_form" id="form_edit_link_{{ url.id }}" style="display: none;"> 
+        <form action="/edit/{{ url.url_min }}" method="post">
+            <p><input name="new_url" id="url_submit_form_{{ url.id }}" type="text" value="{{ url.url_src }}" class="input_new_url" /><input name="idl" id="idl_submit_form_{{ url.id }}"type="hidden" value="{{ url.id }}" />
+            <span id="preload_{{ url.id }}"> </span>
+            <span id="edittext_{{ url.id }}"> <input name="submit" type="submit" class="small_submit submit_edit_form" id="submit_form_{{ url.id }}" value="Edit!" /> or <a href="#" class="show_form_edit_link" id="edit_link_{{ url.id }}">Cancel</a></span></p>
+        </form>
+    </div>
+    {% endifequal %}{% endif %}
+{% ifnotequal total_shared 0 %} (posted {{ total_shared }} times){% endifnotequal %}</div>
+{% if total_shared %}
+<ul id="last_shared">
+    {% for lastshar in shared_sameurl %}
+    <li><a href="{{ lastshar.get_absolute_url }}">#</a> {{ lastshar.pub_date|date_diff }} by 
+    {% if lastshar.auteur %}
+        <a href="{{ lastshar.auteur.get_profile.get_absolute_url }}">{% if lastshar.auteur.get_profile.avatar_url %}<img src="{{ lastshar.auteur.get_profile.avatar_url }}" alt="" style="width: 22px;" class="style_avatar border_fiche" /> {% endif %}{{ lastshar.auteur.username }}</a>
+    {% else %}
+        Guest
+    {% endif %} 
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+<hr class="clearehr" />
+</div>
+</div>
+
+<p><span id="domain_edit_link_{{ url.id }}"><a href="/d/{{ url.domain }}/">{{ url.domain }}</a></span> &mdash; <span id="description_edit_link_{{ url.id }}">{% if url.description %}{{ url.description }}{% else %}<em>no description</em>{% endif %}</span></p>
+
+
+{% if view_stats %}
+<h2><a href="/c/{{ url.url_min }}/">Clics ({{ url.nb_clics }})</a></h2>
+
+<div class="list_graphs">
+    <ul class="graphs">
+        <li><a href="#" id="open_g24h" class="open_chart_url selected">Last 24 hours</a></li>
+        <li><a href="#" id="open_g7j" class="open_chart_url">Last 7 days</a></li>
+        <li><a href="#" id="open_g30j" class="open_chart_url">Last 30 days</a></li>
+    </ul>
+    <div class="content_graph">
+        <div id="g24h"><img src="{{ graph_last_24h }}" alt="Last 24h" /></div>
+        <div id="g7j" style="display: none;"><img src="{{ graph_last_7j }}" alt="Last 7 days" /></div>
+        <div id="g30j" style="display: none;"><img src="{{ graph_last_30j }}" alt="Last 30 days" /></div>
+    </div>
+    <hr class="clearehr" />
+</div>
+
+<div style="float: left; width: 256px;" class="list_data">
+<h2>Last clics</h2>
+<ul>
+    {% if last_clics_data %}
+    {% for clic in last_clics_data %}
+    <li>{{ clic.pub_date|date_diff }} from {% if clic.country.int %}{{ clic.country.int }}{% else %}Unknown{% endif %}</li>
+    {% endfor %}
+    {% else %}
+    <li><strong>No data yet</strong></li>
+    {% endif %}
+</ul>
+</div>
+
+<div style="float: left; width: 256px;" class="list_data">
+<h2>Referers</h2>
+<ul>
+    {% if all_referers %}
+    {% for ref in all_referers %}
+    <li><span class="float_right">({{ ref.nbr }})</span> <a href="http://{{ ref.url }}">{{ ref.url }}</a></li>
+    {% endfor %}
+    {% else %}
+    <li><strong>No data yet</strong></li>
+    {% endif %}
+</ul>
+</div>
+
+<div style="float: left; width: 350px;" class="list_data">
+<h2>Locations</h2>
+{% if list_geoloc %}
+<img src="http://chart.apis.google.com/chart?chco=0077cc&cht=p3&chd=t:{% for geo in list_geoloc %}{{ geo.nb_clics }}{% if not forloop.last %},{% endif %}{% endfor %}&chs=350x130&chl={% for geo in list_geoloc %}{{ geo.country.int }}{% if not forloop.last %}|{% endif %}{% endfor %}" />
+{% else %}
+<p><strong>No data yet</strong></p>
+{% endif %}
+</div>
+{% else %}
+<p>These statistics are private.</p>
+{% endif %}
+
+<hr class="clearehr" />
+</div>
+
+{% endblock %}

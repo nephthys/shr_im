@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ url.url_min }} &bull; Statistics in real time{% endblock %}
+{% block content %}
+
+{% load appname_tags %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1 title="{{ url.title }}">{% if url.is_private %}<img src="/site_media/img/lock.png" alt="Private URL" /> {% endif %}<span id="title_h1_edit_link_{{ url.id }}">{{ url.title|truncchar:75 }}</span></h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+<h2 style="margin-top: 0;">{{ nb_clics }} clic{{ nb_clics|pluralize }}</h2>
+
+<table class="data_table">
+<tr>
+    <th>Date</th>
+    <th>Country</th>
+    <th>Referer</th>
+    {% if request.user.is_superuser %}<th>IP</th>{% endif %}
+</tr>
+{% if list_clics %}
+    {% for clic in list_clics %}
+    <tr>
+        <td>{{ clic.pub_date|date_diff }}</td>
+        <td>{% if clic.country.int %}{{ clic.country.int }}{% else %}Unknown{% endif %}</td>
+        <td>{% if clic.referer %}<a href="{{ clic.referer }}">referer</a>{% else %}--{% endif %}</td>
+        {% if request.user.is_superuser %}<td>{{ clic.ip_post }}</td>{% endif %}
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr><td colspan="{% if request.user.is_superuser %}4{% else %}3{% endif %}">No data yet</td></tr>
+{% endif %}
+</table>
+
+<ul class="list_pages"><li class="int"><span>Page(s) :</span></li>
+{% for current_page in list_page %}
+	{% ifequal current_page page %}
+	<li class="current"><span>{{ current_page }}</span></li>
+	{% else %}
+	{% ifequal current_page separateur %}
+	<li class="sep"><span>{{ separateur }}</span></li>
+	{% else %}
+	<li class="pg"><a href="?p={{ current_page }}">{{ current_page }}</a></li>
+	{% endifequal %}
+	{% endifequal %}
+{% endfor %}</ul>
+
+</div>
+
+{% endblock %}

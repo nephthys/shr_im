@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Tools{% endblock %}
+{% block content %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1>Tools</h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+    <h2>Bookmarket</h2>
+    
+    <p><a href="javascript:void(location.href='{{ domain_app }}/?url_src='+encodeURIComponent(location.href))" onclick="javascript:return false;">Shorten with shr.im</a> - Drag and drop this link to your bookmark toolbar to share urls in one clic.</p>
+    
+    <br /><p style="font-size: 0.85em;">Want to create tools? Feel free to <a href="/contact/">contact us</a>.</p>
+</div>
+
+{% endblock %}

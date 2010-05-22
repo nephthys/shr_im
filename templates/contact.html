@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Contact{% endblock %}
+{% block content %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1>Contact us</h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+    {% if num_msg %}
+        {% ifequal num_msg 60 %}<div id="msg" class="success">Your message has been send.</div>{% endifequal %}
+    {% endif %}
+    
+    <h2>Contact Form</h2>
+
+    <form action="./" method="post">
+    <table class="contactform">
+    {{ form.as_table }}
+    </table>
+    <p class="bcontactform"><input type="submit" name="submit" id="submit_butt" value="Submit" /></p>
+    </form>
+    
+</div>
+
+{% endblock %}

@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>{% block title %}shr.im &bull; just an url shortener{% endblock %}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-language" content="en" />
+	<link rel="stylesheet" type="text/css" href="/site_media/style.css" media="screen" />
+    <link rel="shortcut icon" type="image/x-icon" href="/site_media/img/favicon.ico" />
+</head>
+
+<div id="heads">
+    <div class="size_content">
+    <div class="float_right">
+    {% if request.user.is_authenticated %}
+        {% if request.user.get_profile.avatar_url %}
+        <img src="{{ request.user.get_profile.avatar_url }}" alt="Your avatar" style="width: 22px;" class="style_avatar" />&nbsp;
+        {% endif %}
+        Hello {{ request.user.username }} (<a href="/logout/">Logout</a>)
+    {% else %}
+        <a href="/login/"><img src="/site_media/login_twitter.png" alt="Sign in with Twitter" /></a>
+    {% endif %}
+    </div>
+    <ul id="menu">
+        <li><a href="/">Home</a></li>
+        <li><a href="/timeline/">Timeline</a></li>
+        <li><a href="/popular/">Popular</a></li>
+        <li><a href="/tools/">Tools</a></li>
+        {% if request.user.is_authenticated %}{% if request.user.is_superuser %}<li><a href="/admin/"><strong>Admin</strong></a></li>{% endif %}{% endif %}
+    </ul>
+    </div>
+</div>
+
+{% block content %}{% endblock %}
+
+<div id="footer">
+    <a href="/">Home</a> &nbsp;&bull;&nbsp;
+    <a href="/contact/">Contact</a> &nbsp;&bull;&nbsp;
+    <a href="http://blog.shr.im">Blog</a> &nbsp;&bull;&nbsp;
+    <a href="/api/">API</a> &nbsp;&bull;&nbsp;
+    <a href="http://shr.im/twitter/">Twitter</a> &nbsp;&bull;&nbsp;
+    <a href="http://shrim.uservoice.com/pages/31810-general">Feedback</a> &nbsp;&nbsp;&nbsp;
+    by @<a href="http://shr.im/twitr">nephthys</a>
+</div>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script type="text/javascript" src="/site_media/effects.js"></script>
+<script type="text/javascript" src="//static.woopra.com/js/woopra.js"></script>
+<script type="text/javascript">var uservoiceJsHost = ("https:" == document.location.protocol) ? "https://uservoice.com" : "http://cdn.uservoice.com"; document.write(unescape("%3Cscript src='" + uservoiceJsHost + "/javascripts/widgets/tab.js' type='text/javascript'%3E%3C/script%3E"))</script>
+<script type="text/javascript">UserVoice.Tab.show({ key: 'shrim', host: 'shrim.uservoice.com', forum: '31810', alignment: 'right', background_color:'#92c800', text_color: 'white', hover_color: '#353535', lang: 'en'})</script>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-11463997-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+<body>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1>{{ url }}</h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+<h2 style="margin-top: 0;">{{ nb_links }} link{{ nb_links|pluralize }}</h2>
+
+{% load appname_tags %}
+
+{% if list_urls %}
+{% for url in list_urls %}
+<div class="{% cycle 'row_tr1' 'row_tr2' %}">
+<table class="row_url">
+<tr id="row_tr_{{ url.id }}">
+    <td class="td_date">{{ url.pub_date|date_diff }}</td>
+    
+    <td class="td_title is_author_link">
+        <h3>{% if url.is_private %}<img src="/site_media/img/lock.png" alt="Private URL" /> {% endif %}<span id="title_edit_link_{{ url.id }}">{{ url.title }}</span></h3>
+        <div class="details_url">
+            <a href="{{ url.get_absolute_redir }}">{{ url.url_src }}</a>
+        </div>
+    </td>
+    <td class="td_stats">By {% if url.auteur %}
+        <a href="{{ url.auteur.get_profile.get_absolute_url }}">{% if url.auteur.get_profile.avatar_url %}<img src="{{ url.auteur.get_profile.avatar_url }}" alt="" style="width: 22px;" class="style_avatar border_fiche" /> {% endif %}{{ url.auteur.username }}</a>
+    {% else %}
+        Guest
+    {% endif %} </td>
+    <td class="td_clics"><a href="{{ url.get_absolute_url }}">{{ url.nb_clics }} clic{% ifnotequal url.nb_clics 0 %}{% ifnotequal url.nb_clics 1 %}s{% endifnotequal %}{% endifnotequal %}</a></td>
+</tr>
+</table>
+</div>
+{% endfor %}
+
+<ul class="list_pages"><li class="int"><span>Page(s) :</span></li>
+{% for current_page in list_page %}
+	{% ifequal current_page page %}
+	<li class="current"><span>{{ current_page }}</span></li>
+	{% else %}
+	{% ifequal current_page separateur %}
+	<li class="sep"><span>{{ separateur }}</span></li>
+	{% else %}
+	<li class="pg"><a href="?p={{ current_page }}">{{ current_page }}</a></li>
+	{% endifequal %}
+	{% endifequal %}
+{% endfor %}</ul>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+--- /tmp/BeautifulSoup.py	2009-11-07 11:04:25.000000000 +0800
++++ BeautifulSoup.py	2009-11-07 11:14:22.000000000 +0800
+@@ -1815,8 +1815,10 @@
+             self.markup = u
+             self.originalEncoding = proposed
+         except Exception, e:
+-            # print "That didn't work!"
+-            # print e
+-            return None
++            #print "That didn't work!"
++            #print e
++            self.markup = markup.decode('utf-8', 'replace')
++            self.originalEncoding = 'utf-8'
++
+         #print "Correct encoding: %s" % proposed
+         return self.markup

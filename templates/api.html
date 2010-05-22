@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}API Documentation{% endblock %}
+{% block content %}
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <h1>API</h1>
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+<div class="size_content" id="contenu">
+    {% if num_msg %}
+        {% ifequal num_msg 50 %}<div id="msg" class="success">You have now an API account.</div>{% endifequal %}
+        {% ifequal num_msg 51 %}<div id="msg" class="success">Your API key has been changed.</div>{% endifequal %}
+        {% ifequal num_msg 52 %}<div id="msg" class="success">Now you no longer have API account.</div>{% endifequal %}
+    {% endif %}
+    
+    <h2>Api account</h2>
+
+    <img src="/site_media/img/icon_api2.png" alt="" style="float: left; margin-right: 15px;" />
+    <p>This API allows you to use all the shr.im features on your site. Post a link, edit or delete it, through the detailed information of a link...</p>
+    <p>All proposed functions <strong>Requires Authentication</strong> (just register with his Twitter account, and request an API key).</p>
+    <p>Sample Query API : <span class="pcode clink">{{ domain_api }}popular.json?<strong>api_user</strong>=your_nick&<strong>api_key</strong>=your_key</span><br />
+    <span style="font-size: 0.85em;">Obviously you need to replace api_user / api_key to your username / key for this to work.</span></p>
+    <br />
+    <div class="send_request">
+    
+    {% if request.user.is_authenticated %}
+        {% if account_api %}
+        <ul>
+            <li><strong>Your username :</strong> {{ account_api.pseudo }}</li>
+            <li><strong>Your key :</strong> {{ account_api.cle }}</li>
+            <li><a href="/api/?act=delete&key={{ account_api.cle }}" class="cssbutton" style="float: right;" onclick="if(!confirm('	Are you sure you want to remove your API account?')){return false}"><img src="/site_media/img/close.png" alt="" /> Delete your API account</a> <a href="/api/?act=reset&key={{ account_api.cle }}" class="cssbutton"><img src="/site_media/img/reset.png" alt="" /> Reset my key</a><hr class="clearehr" /></li>
+        </ul>
+        {% else %}
+        <form action="/api/?send_request=1" method="post" style="text-align: center;">
+            <p><strong>You don't have an API account yet.</strong></p>
+            <p style="margin-bottom: 5px;"><label><input name="accept_tos" id="accept_tos" type="checkbox" /> Accept the <a href="/tos/">Terms of Service</a></label></p>
+            <p style="width: 150px; margin: 0 auto;"><input name="submit" type="submit" value="Request Account API" class="cssbutton" style="width: 150px; text-align: center;" /></p>
+            <hr class="clearehr" />
+        </form>
+        {% endif %}
+    {% else %}
+        <p style="text-align: center;">
+            You need to <a href="/login/">login</a> with your Twitter account for request a API account.
+        </p>
+    {% endif %}
+    </div>
+    
+    <h2>Documentation</h2>
+    <ul id="chap">
+        <li><a href="#fct_public_timeline">public_timeline</a></li>
+        <li><a href="#fct_home_timeline">home_timeline</a></li>
+        <li><a href="#fct_popular">popular</a></li>
+        <li><a href="#fct_view">view</a></li>
+        <!-- <li><a href="#fct_view_url">view_url</a></li> -->
+        <li><a href="#fct_by_domain">by_domain</a></li>
+        <li><a href="#fct_by_user">by_user</a></li>
+        <li><a href="#fct_post">post</a></li>
+        <li><a href="#fct_edit">edit</a></li>
+        <li><a href="#fct_delete">delete</a></li>
+    </ul>
+    
+    <div class="row_doc">
+        <h3 id="fct_public_timeline">public_timeline  <span class="tdesc">Get last links posted</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}public_timeline.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>None</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_home_timeline">home_timeline <span class="tdesc">Get your links</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}home_timeline.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>None</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_popular">popular <span class="tdesc">Top links right now</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}popular.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>None</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_view">view <span class="tdesc">Detailed information of a link</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}view.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>alias (required) : unique identifier of the link (i.e : "test20" for shr.im/apistats)</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_by_domain">by_domain <span class="tdesc">Display links by domain</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}by_domain.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>domain (required) : URL of domain (i.e : digg.com, news.cnet.com)</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_by_user">by_user <span class="tdesc">Display links by user</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}by_user.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>user (required) : username of user (i.e : shr_im, nephthys)</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_post">post <span class="tdesc">Post a new link</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}post.<em>format</em></span></li>
+            <li>Formats : xml, json, text</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>url_src (required) : URL of the link</li>
+                <li>url_min (optional) : unique identifier of the link</li>
+                <li>is_private (optional) : public (0, default) or private (1)</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_edit">edit <span class="tdesc">Edit a link</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}edit.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>url_min (required) : identifier of the link to edit</li>
+                <li>url_src (required) : new URL of the link</li>
+            </ul></li>
+        </ul>
+    </div>
+    
+    <div class="row_doc">
+        <h3 id="fct_delete">delete <span class="tdesc">Delete a link</span></h3>
+        <ul class="ddata">
+            <li>URL : <span class="pcode">{{ domain_api }}delete.<em>format</em></span></li>
+            <li>Formats : xml, json</li>
+            <li>HTTP Method : GET</li>
+            <li>Requires Authentication : yes</li>
+            <li>Parameters : <ul>
+                <li>url_min (required) : identifier of the link to delete</li>
+            </ul></li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<!-- post a new link -->
+
+<form id="new_link" action="./" method="post">
+
+<div id="header">
+    <div class="size_content">
+        <a href="/" title="Just an url shortener"><img src="/site_media/img/logo.jpg" id="logo" alt="Just an url shortener" /></a>
+        <div class="right_head">
+            <input id="id_url_src" type="text" name="url_src" maxlength="200" value="Your long URL" onclick="if(this.value=='Your long URL') this.value='';" />
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+<div class="size_content">
+    <div class="right_head2">
+        <div class="float_right">
+            <span id="my_loader_place"></span>
+            <input type="submit" name="submit" id="submit_butt" value="Share!" />
+        </div>
+        
+        <div class="more_options_space">
+        
+        <span id="more_options"><a href="#" class="link_plus_options show_side">More options</a></span>
+        <div style="display: none;" id="more_options_hide">
+            <a href="#" class="link_plus_options hide_side">Hide options</a>
+            <table class="forms">
+            <tr><th><label for="id_url_min">Alias : </label></th><td><input id="id_url_min" type="text" name="url_min" maxlength="20" /></td></tr>
+            {% if request.user.is_authenticated %}<tr><th><label for="id_is_private">Is private ?</label></th><td><input id="id_is_private" type="checkbox" name="is_private" /></td></tr>{% endif %}
+            </table>
+        </div>
+        
+        </div>
+        <hr class="clearehr" />
+    </div>
+</div>
+
+</form>
+
+<div class="size_content">
+<div id="my_content_newlinks"></div>
+{% comment %}
+0* : Connexion
+1* : Ajout URL
+2* : Conversation avec twitter
+3* : Suppression URL
+5* : Messages API
+6* : Formulaire de contact
+{% endcomment %}
+{% if num_msg %}
+    {% ifequal num_msg 1 %}<div id="msg" class="error">Oops, fatal error!</div>{% endifequal %}
+    {% ifequal num_msg 2 %}<div id="msg" class="success">You are now logged!</div>{% endifequal %}
+    {% ifequal num_msg 3 %}<div id="msg" class="success">You have been disconnected.</div>{% endifequal %}
+    {% ifequal num_msg 10 %}<div id="msg" class="error">Long URL is required.</div>{% endifequal %}
+    {% ifequal num_msg 11 %}<div id="msg" class="error">This link does not exist.</div>{% endifequal %}
+    {% ifequal num_msg 12 %}<div id="msg" class="error">Long URL is invalid.</div>{% endifequal %}
+    {% ifequal num_msg 30 %}<div id="msg" class="success">Your URL has been deleted.</div>{% endifequal %}
+{% endif %}
+
+{% for field in form %}
+    {% if field.errors %}
+    <strong>{{ field.label }}</strong> : {% for error in field.errors %} {{ error }} {% endfor %}<br />
+    {% endif %}
+{% endfor %}
+
+{% if request.user.is_authenticated %}
+<h2><a href="{{ request.user.get_profile.get_absolute_url }}">Your last links</a></h2>
+
+{% load appname_tags %}
+
+{% if list_urls %}
+{% for url in list_urls %}
+<div class="{% cycle 'row_tr1' 'row_tr2' %}">
+<table class="row_url">
+<tr id="row_tr_{{ url.id }}">
+    <td class="td_date">{{ url.pub_date|date_diff }}</td>
+    <td class="td_title is_author_link">
+        <h3>{% if url.is_private %}<img src="/site_media/img/lock.png" alt="Private URL" /> {% endif %}<span id="title_edit_link_{{ url.id }}">{{ url.title }}</span></h3>
+        <div class="details_url" id="url_edit_link_{{ url.id }}">
+            <a href="{{ url.get_absolute_redir }}" id="src_edit_link_{{ url.id }}">{{ url.url_src }}</a>
+            <span style="display: none;" class="hide_opt_focus"> 
+                &nbsp;&nbsp; <a href="#" class="show_form_edit_link" id="edit_link_{{ url.id }}" title="edit this link">edit</a> &nbsp;
+                <a href="#" class="show_form_delete_link" id="delete_link_{{ url.id }}" title="delete this link">delete</a>
+            </span>
+        </div>
+        <div class="edit_form" id="form_edit_link_{{ url.id }}" style="display: none;"> 
+            <form action="/edit/{{ url.url_min }}" method="post">
+                <p><input name="new_url" id="url_submit_form_{{ url.id }}" type="text" value="{{ url.url_src }}" class="input_new_url" /><input name="idl" id="idl_submit_form_{{ url.id }}"type="hidden" value="{{ url.id }}" />
+                <span id="preload_{{ url.id }}"> </span>
+                <span id="edittext_{{ url.id }}"> <input name="submit" type="submit" class="small_submit submit_edit_form" id="submit_form_{{ url.id }}" value="Edit!" /> or <a href="#" class="show_form_edit_link" id="edit_link_{{ url.id }}">Cancel</a></span></p>
+            </form>
+        </div>
+    </td>
+    <td class="td_clics"><a href="{{ url.get_absolute_url }}">{{ url.nb_clics }} clic{% ifnotequal url.nb_clics 0 %}{% ifnotequal url.nb_clics 1 %}s{% endifnotequal %}{% endifnotequal %}</a></td>
+    <td class="td_stats"><a href="{{ url.get_absolute_url }}"><img src="/site_media/img/more_stats.png" alt="" /> Stats</a></td>
+</tr>
+</table>
+</div>
+{% endfor %}
+
+{% if show_page %}
+<ul class="list_pages"><li class="int"><span>Page(s) :</span></li>
+{% for current_page in list_page %}
+	{% ifequal current_page page %}
+	<li class="current"><span>{{ current_page }}</span></li>
+	{% else %}
+	{% ifequal current_page separateur %}
+	<li class="sep"><span>{{ separateur }}</span></li>
+	{% else %}
+	<li class="pg"><a href="?p={{ current_page }}">{{ current_page }}</a></li>
+	{% endifequal %}
+	{% endifequal %}
+{% endfor %}</ul>
+{% endif %}
+{% endif %}
+
+{% else %}
+
+<h2>Why register?</h2>
+<div id="take_a_tour" class="list_graphs">
+<dl>
+    <dt><img src="/site_media/img/icon_manage2.png" alt="" /> Manage your links</dt>
+    <dd>Access all your links and their statistics in real time.</dd>
+</dl>
+<dl>
+    <dt><img src="/site_media/img/icon_twitter.png" alt="" /> Fast and easy</dt>
+    <dd>Sign in with your Twitter account, it takes a few seconds and requires no password.</dd>
+</dl>
+<dl>
+    <dt><img src="/site_media/img/icon_api.png" alt="" /> API access</dt>
+    <dd>Use features and data of shr.im on your site or application.</dd>
+</dl>
+<hr class="clearehr" />
+<p style="margin-bottom: 0; margin-left: 1%; font-weight: bold;"><a href="/login/">Sign in or sign up now</a></p>
+</div>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

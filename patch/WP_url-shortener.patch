@@ -1,0 +1,61 @@
+diff -rupN url-shortener/req/options.php url-shortener++/req/options.php
+--- url-shortener/req/options.php	2009-11-07 17:22:16.000000000 +0800
++++ url-shortener++/req/options.php	2009-11-10 11:48:23.226112624 +0800
+@@ -53,7 +53,8 @@ function draw_fts_shortenurl_page(){
+ 						
+ 						<select name="fts_urlfx[urlservice]" id="urlservicesel" >
+ 							<option value="none" <?php selected( 'none', $fts_urlfx['urlservice'] ); ?>>Select Service... &nbsp;</option>
+-							<option value="tinyurl" <?php selected( 'tinyurl', $fts_urlfx['urlservice'] ); ?>> TinyURL &nbsp;</option>				
++							<option value="tinyurl" <?php selected( 'tinyurl', $fts_urlfx['urlservice'] ); ?>> TinyURL &nbsp;</option>
++							<option value="shrim" <?php selected( 'shrim', $fts_urlfx['urlservice'] ); ?>>shr.im (by nephthys) &nbsp;</option>
+ 							<option value="supr" <?php selected( 'supr', $fts_urlfx['urlservice'] ); ?>>Su.pr (by StumbleUpon) &nbsp;</option>
+ 							<option value="isgd" <?php selected( 'isgd', $fts_urlfx['urlservice'] ); ?>>is.gd &nbsp;</option>
+ 							<option value="bitly" <?php selected( 'bitly', $fts_urlfx['urlservice'] ); ?>>bit.ly &nbsp;</option>
+@@ -84,6 +85,15 @@ function draw_fts_shortenurl_page(){
+ 						</div>
+ 						
+ 						<div class="APIConfig">
++							<div id="userkey_shrim" class="<?php if ($fts_urlfx['urlservice'] != 'shrim'){ echo "hideit";} else {echo "showit";} ?> req">
++								<label class="apifields">API User (Required)</label>
++								<input  class="apiuserval" type="text" id="apiuser_shrim" name="fts_urlfx[apiuser_shrim]" value="<?php echo $fts_urlfx['apiuser_shrim']; ?>" />
++								<label class="apifields">API Key (Required)</label>
++								<input class="apipassval" type="text" id="apikey_shrim" name="fts_urlfx[apikey_shrim]" value="<?php echo $fts_urlfx['apikey_shrim']; ?>" />
++							</div>
++						</div>
++
++						<div class="APIConfig">
+ 							<div id="userkey_supr" class="<?php if ($fts_urlfx['urlservice'] != 'supr'){ echo "hideit";} else {echo "showit";} ?>">
+ 								<label class="apifields">API User (Optional)</label> 
+ 								<input class="apiuserval" type="text" name="fts_urlfx[apiuser_supr]" value="<?php echo $fts_urlfx['apiuser_supr']; ?>" />
+diff -rupN url-shortener/req/urlservices.php url-shortener++/req/urlservices.php
+--- url-shortener/req/urlservices.php	2009-11-07 17:22:16.000000000 +0800
++++ url-shortener++/req/urlservices.php	2009-11-10 11:56:25.441113085 +0800
+@@ -8,6 +8,19 @@ function createshorturl($apiservice, $ur
+ 			return $geturl;  
+ 			break;
+ 			
++		case 'shrim':
++			$apilogin = htmlentities($globe_fts_urlfx['apiuser_shrim'], ENT_QUOTES);
++			$apiloginpass = htmlentities($globe_fts_urlfx['apikey_shrim'], ENT_QUOTES);
++			if ($apilogin == '' || $apiloginpass == ''){} else {
++				$apiuser = "&api_user=".$apilogin;
++				$apipass = "&api_key=".$apiloginpass ;
++				$url .= $apiuser;
++				$url .= $apipass;
++			}
++			$geturl = file_get_contents("http://shr.im/api/1.0/post.text?url_src=".urlencode($url));  
++			return $geturl; 
++			break;
++						
+ 		case 'supr':
+ 			$apilogin = htmlentities($globe_fts_urlfx['apiuser_supr'], ENT_QUOTES);
+ 			$apiloginpass = htmlentities($globe_fts_urlfx['apikey_supr'], ENT_QUOTES);
+@@ -20,7 +33,7 @@ function createshorturl($apiservice, $ur
+ 			$geturl = file_get_contents("http://su.pr/api/simpleshorten?url=".urlencode($url));  
+ 			return $geturl; 
+ 			break;
+-			
++
+ 		case 'isgd':
+ 			$geturl = file_get_contents("http://is.gd/api.php?longurl=".urlencode($url));  
+ 			return $geturl;  
