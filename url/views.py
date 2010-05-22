@@ -88,7 +88,7 @@ def homepage(request):
                 new_url.url_min = alias_url
                 
             # Géolocalisation des urls
-            gi = pygeoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
+            gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
             country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
         
             if country_data:
@@ -152,7 +152,7 @@ def redir(request, alias):
 
     # Géolocalisation des clics
     my_country = None
-    gi = pygeoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
+    gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
     country_data = gi.country_name_by_name(ip)
     
     obFichier = open('%slist_clics.txt' % (settings.STATIC_ROOT), 'a')
@@ -706,7 +706,7 @@ def justAPIv1(request, function, format_output='text'):
                     new_url.url_min = alias_url
                     
                 # Géolocalisation des urls
-                gi = pygeoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
+                gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
                 country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
             
                 if country_data:
