@@ -40,6 +40,9 @@ import re
 # pygeoip (pure Python implementation)
 try:
     import GeoIP as geoip
+
+    # Monkey patch for compatibility with pygeoip
+    geoip.GeoIP = lambda filename: geoip.open(filename, geoip.GEOIP_STANDARD)
 except ImportError:
     try:
         import pygeoip as geoip
