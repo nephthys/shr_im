@@ -125,8 +125,7 @@ def homepage(request):
             country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
         
             if country_data:
-                new_url = add_link_to_country(country_data)
-                new_url.country = my_country
+                new_url.country = add_link_to_country(country_data)
                 
             if not request.user.is_anonymous():
                 new_url.auteur = request.user
@@ -729,8 +728,7 @@ def justAPIv1(request, function, format_output='text'):
                 country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
             
                 if country_data:
-                    new_url = add_link_to_country(country_data)
-                    new_url.country = my_country
+                    new_url.country = add_link_to_country(country_data)
                     
                 new_url.auteur = access_api.auteur  
                 new_url.save()
