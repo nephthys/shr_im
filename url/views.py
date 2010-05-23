@@ -109,6 +109,7 @@ def shorten_url(url, ip, user=None, model=None, custom_alias=None):
     if not data_from_url:
         raise ValueError("invalid URL provided")
 
+    model.url_src = url
     model.domain = urlparse(url).netloc
     model.title = data_from_url['title'][0:200]
     model.description = data_from_url['description'][0:300]
