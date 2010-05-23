@@ -92,6 +92,44 @@ def add_link_to_country(country_name):
     country.save()
     return country
 
+def shorten_url(url, ip, user=None, model=None, custom_alias=None):
+    """
+    Shorten the given URL and returns the object representing the URL in the
+    DB. If no object is given (the default), a new Url object is created.
+
+    Optional keyword parameters:
+        - user: the user DB object which created the URL.
+        - model: the model already containing data from the form.
+        - custom_alias: the user provided custom alias for the URL.
+    """
+    if model is None:
+        model = Url()
+
+    data_from_url = extractDataFromUrl(url)
+    if not data_from_url:
+        raise ValueError("invalid URL provided")
+
+    model.domain = urlparse(url).netloc
+    model.title = data_from_url['title'][0:200]
+    model.description = data_from_url['description'][0:300]
+    model.ip_post = ip
+
+    if custom_alias is not None:
+        model.url_min = custom_alias
+    else:
+        model.url_min = create_short_alias()
+
+    gi = geoip.GeoIP('%sGeoIP.dat' % settings.STATIC_ROOT)
+    country = gi.country_name_by_name(ip)
+    if country:
+        model.country = add_link_to_country(country)
+
+    if user is not None:
+        model.auteur = user
+
+    model.save()
+    return model
+
 def homepage(request):
     get_urls = request.GET.get('url_src', '')
     type_request = 'POST'
@@ -106,31 +144,19 @@ def homepage(request):
         form = UrlForm(data_request)
         if form.is_valid():
             new_url = form.save(commit=False)
-            data_url = extractDataFromUrl(form.cleaned_data['url_src'])
-            
-            if not data_url:
+            user = None if request.user.is_anonymous() else request.user
+            custom_alias = form.cleaned_data['url_min'] or None
+            try:
+                shorten_url(
+                    form.cleaned_data['url_src'],
+                    request.META['REMOTE_ADDR'],
+                    user=user,
+                    model=new_url,
+                    custom_alias=custom_alias
+                )
+            except ValueError:
                 return HttpResponseRedirect('/?msg=12')
-            
-            new_url.domain = urlparse(form.cleaned_data['url_src']).netloc
-            new_url.title = data_url['title'][0:200]
-            new_url.description = data_url['description'][0:300]
-            new_url.ip_post = request.META['REMOTE_ADDR']
-            
-            # Try to get an alias...
-            if not form.cleaned_data['url_min']:
-                new_url.url_min = create_short_alias()
-                
-            # Géolocalisation des urls
-            gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
-            country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
-        
-            if country_data:
-                new_url.country = add_link_to_country(country_data)
-                
-            if not request.user.is_anonymous():
-                new_url.auteur = request.user
-                
-            new_url.save()
+
             return HttpResponseRedirect('/s/%s/?new' % (new_url.url_min))
     else:
         form = UrlForm()
@@ -709,29 +735,17 @@ def justAPIv1(request, function, format_output='text'):
             
             if form.is_valid():
                 new_url = form.save(commit=False)
-                data_url = extractDataFromUrl(form.cleaned_data['url_src'])
-                
-                if not data_url:
+                custom_alias = form.cleaned_data['url_min'] or None
+                try:
+                    new_url = shorten_url(
+                        form.cleaned_data['url_src'],
+                        request.META['REMOTE_ADDR'],
+                        user=access_api.auteur,
+                        model=new_url,
+                        custom_alias=custom_alias
+                    )
+                except ValueError:
                     return HttpResponse('Error')
-                
-                new_url.domain = urlparse(form.cleaned_data['url_src']).netloc
-                new_url.title = data_url['title'][0:200]
-                new_url.description = data_url['description'][0:300]
-                new_url.ip_post = request.META['REMOTE_ADDR']
-                
-                # Try to get an alias...
-                if not form.cleaned_data['url_min']:
-                    new_url.url_min = create_short_alias()
-                    
-                # Géolocalisation des urls
-                gi = geoip.GeoIP('%sGeoIP.dat' % (settings.STATIC_ROOT))
-                country_data = gi.country_name_by_name(request.META['REMOTE_ADDR'])
-            
-                if country_data:
-                    new_url.country = add_link_to_country(country_data)
-                    
-                new_url.auteur = access_api.auteur  
-                new_url.save()
 
                 if method == 'text':
                     return HttpResponse('%s/%s' % (domain_app, new_url.url_min))
