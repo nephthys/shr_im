@@ -83,9 +83,9 @@ def add_link_to_country(country_name):
     1.
     """
     try:
-        country = Country.objects.get(name=country_data)
+        country = Country.objects.get(name=country_name)
     except Country.DoesNotExist:
-        country = Country(name=country_data, int=country_data)
+        country = Country(name=country_name, int=country_name)
         country.save()
 
     country.nb_links += 1
