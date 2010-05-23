@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     (r'^d/(?P<url>.*)/$', 'shr.url.views.view_domain'),
     (r'^del/(?P<alias>.*)/$', 'shr.url.views.delete'),
     (r'^admin/(.*)', admin.site.root),
+    (r'^(http://.*)$', 'shr.url.views.prefixed_access'),
     (r'^(?P<alias>.*)/$', 'shr.url.views.redir'),
 )
 

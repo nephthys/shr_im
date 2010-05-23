@@ -188,6 +188,25 @@ def homepage(request):
                separateur=separateur,
                show_page=show_page)
     return render_to_response('post_old.html', ctx)
+
+def prefixed_access(request, url):
+    """
+    Handles http://shr.im/http://example.com/index.html style URLs.
+
+    Shorten the URL and redirect.
+    """
+    user = None if request.user.is_anonymous() else request.user
+    try:
+        new_url = shorten_url(
+            url,
+            request.META['REMOTE_ADDR'],
+            user=user
+        )
+    except ValueError:
+        return HttpResponseRedirect('/?msg=12')
+
+    return HttpResponseRedirect('/s/%s/?new' % new_url.url_min)
+
     
 def redir(request, alias):
     """
